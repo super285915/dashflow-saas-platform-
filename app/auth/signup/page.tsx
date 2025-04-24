@@ -13,7 +13,7 @@ import { useForm } from 'react-hook-form';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import Link from 'next/link';
 import { Separator } from '@/components/ui/separator';
-import { Github, Mail } from 'lucide-react';
+import { Github, Globe } from 'lucide-react';
 
 const signupSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters.'),
@@ -34,7 +34,7 @@ type SignupValues = z.infer<typeof signupSchema>;
 export default function SignupPage() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const form = useForm<SignupValues>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
@@ -44,10 +44,10 @@ export default function SignupPage() {
       terms: false,
     },
   });
-  
+
   function onSubmit(values: SignupValues) {
     setIsLoading(true);
-    
+
     // Simulate API call
     setTimeout(() => {
       setIsLoading(false);
@@ -57,10 +57,10 @@ export default function SignupPage() {
       });
     }, 1500);
   }
-  
+
   return (
-    <div className="flex items-center justify-center min-h-[calc(100vh-12rem)] px-4">
-      <Card className="w-full max-w-md">
+    <div className="flex items-center justify-center min-h-[calc(100vh)]">
+      <Card className="w-full max-w-md mx-auto">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">Create an account</CardTitle>
           <CardDescription className="text-center">
@@ -83,7 +83,7 @@ export default function SignupPage() {
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="email"
@@ -97,7 +97,7 @@ export default function SignupPage() {
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="password"
@@ -114,7 +114,7 @@ export default function SignupPage() {
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="terms"
@@ -142,13 +142,13 @@ export default function SignupPage() {
                   </FormItem>
                 )}
               />
-              
+
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? 'Creating account...' : 'Create account'}
               </Button>
             </form>
           </Form>
-          
+
           <div className="mt-6">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
@@ -160,14 +160,14 @@ export default function SignupPage() {
                 </span>
               </div>
             </div>
-            
+
             <div className="flex gap-2 mt-6">
               <Button variant="outline" className="w-full">
                 <Github className="mr-2 h-4 w-4" />
                 Github
               </Button>
               <Button variant="outline" className="w-full">
-                <Mail className="mr-2 h-4 w-4" />
+                <Globe className="mr-2 h-4 w-4" />
                 Google
               </Button>
             </div>

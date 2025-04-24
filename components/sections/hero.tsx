@@ -41,7 +41,7 @@ export function Hero() {
         <div className="absolute inset-0 bg-grid-black/[0.02] dark:bg-grid-white/[0.02]"></div>
       </div>
       
-      <div className="container px-4 relative">
+      <div className="px-4 relative">
         <Badge variant="outline" className="mb-6 absolute -top-3 left-1/2 transform -translate-x-1/2 border-foreground/10 text-muted-foreground px-4 py-1.5">
           <span className="relative flex h-2 w-2 mr-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
@@ -50,7 +50,7 @@ export function Hero() {
           New Dashboard Features Released
         </Badge>
         
-        <div className="flex flex-col items-center text-center max-w-5xl mx-auto">
+        <div className="flex flex-col items-center text-center max-w-5xl mx-auto justify-center">
           <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
             Analytics that <span className="text-primary">transform</span> your business
           </h1>

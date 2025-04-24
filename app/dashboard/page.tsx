@@ -61,7 +61,7 @@ export default function DashboardPage() {
   
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex justify-between items-center mb-8 mt-10">
         <PageHeader
           title="Analytics Dashboard"
           description="Interactive demo of the Dashflow analytics platform."
@@ -243,9 +243,12 @@ export default function DashboardPage() {
                   data={usersData}
                   margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))"/>
                   <XAxis dataKey="name" />
-                  <YAxis />
+                  <YAxis
+                    stroke="hsl(var(--muted-foreground))"
+                    tick={{ fill: "hsl(var(--muted-foreground))" }}
+                  />
                   <Tooltip />
                   <Bar dataKey="value" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} />
                 </BarChart>
