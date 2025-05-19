@@ -13,7 +13,9 @@ import { useForm } from 'react-hook-form';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import Link from 'next/link';
 import { Separator } from '@/components/ui/separator';
-import { Github, Globe } from 'lucide-react';
+import { Github } from 'lucide-react';
+import { FcGoogle } from 'react-icons/fc';
+import { signIn } from 'next-auth/react';
 
 const signupSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters.'),
@@ -34,6 +36,7 @@ type SignupValues = z.infer<typeof signupSchema>;
 export default function SignupPage() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [isOAuthLoading, setIsOAuthLoading] = useState(false);
 
   const form = useForm<SignupValues>({
     resolver: zodResolver(signupSchema),
@@ -45,17 +48,62 @@ export default function SignupPage() {
     },
   });
 
-  function onSubmit(values: SignupValues) {
-    setIsLoading(true);
+  const handleOAuthSignIn = async (provider: 'github' | 'google') => {
+    try {
+      setIsOAuthLoading(true);
+      await signIn(provider, { callbackUrl: '/dashboard' });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Something went wrong with the authentication.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsOAuthLoading(false);
+    }
+  };
 
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
+  async function onSubmit(values: SignupValues) {
+    try {
+      setIsLoading(true);
+      
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: values.name,
+          email: values.email,
+          password: values.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Something went wrong');
+      }
+
       toast({
         title: "Account created",
-        description: "Welcome to Dashflow! Redirecting to your dashboard...",
+        description: "Welcome to Dashflow! Signing you in...",
       });
-    }, 1500);
+
+      // Sign in the user after successful registration
+      await signIn('credentials', {
+        email: values.email,
+        password: values.password,
+        callbackUrl: '/dashboard',
+      });
+
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Something went wrong",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -162,12 +210,22 @@ export default function SignupPage() {
             </div>
 
             <div className="flex gap-2 mt-6">
-              <Button variant="outline" className="w-full">
+              <Button 
+                variant="outline" 
+                className="w-full"
+                onClick={() => handleOAuthSignIn('github')}
+                disabled={isOAuthLoading}
+              >
                 <Github className="mr-2 h-4 w-4" />
                 Github
               </Button>
-              <Button variant="outline" className="w-full">
-                <Globe className="mr-2 h-4 w-4" />
+              <Button 
+                variant="outline" 
+                className="w-full"
+                onClick={() => handleOAuthSignIn('google')}
+                disabled={isOAuthLoading}
+              >
+                <FcGoogle className="mr-2 h-4 w-4" />
                 Google
               </Button>
             </div>

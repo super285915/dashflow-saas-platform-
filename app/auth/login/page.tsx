@@ -12,7 +12,9 @@ import { useForm } from 'react-hook-form';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import Link from 'next/link';
 import { Separator } from '@/components/ui/separator';
-import { Github, Mail } from 'lucide-react';
+import { Github } from 'lucide-react';
+import { FcGoogle } from 'react-icons/fc';
+import { signIn } from 'next-auth/react';
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address.'),
@@ -24,6 +26,7 @@ type LoginValues = z.infer<typeof loginSchema>;
 export default function LoginPage() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [isOAuthLoading, setIsOAuthLoading] = useState(false);
   
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
@@ -33,17 +36,61 @@ export default function LoginPage() {
     },
   });
   
-  function onSubmit(values: LoginValues) {
+  async function onSubmit(values: LoginValues) {
     setIsLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-      toast({
-        title: "Login successful",
-        description: "Redirecting to your dashboard...",
+    try {
+      const result = await signIn('credentials', {
+        email: values.email,
+        password: values.password,
+        redirect: false,
       });
-    }, 1500);
+
+      if (result?.error) {
+        const errorMessage = result.error === "CredentialsSignin" 
+          ? "Invalid email or password"
+          : "Something went wrong. Please try again.";
+          
+        toast({
+          title: "Error",
+          description: errorMessage,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Successful login
+      toast({
+        title: "Success",
+        description: "Login successful! Redirecting to dashboard...",
+      });
+
+      // Redirect to dashboard
+      window.location.href = '/dashboard';
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function handleOAuthSignIn(provider: string) {
+    setIsOAuthLoading(true);
+    try {
+      await signIn(provider, { callbackUrl: '/dashboard' });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsOAuthLoading(false);
+    }
   }
   
   return (
@@ -92,7 +139,19 @@ export default function LoginPage() {
               />
               
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? 'Signing in...' : 'Sign in'}
+                {isLoading ? (
+                  <>
+                    <span className="mr-2">
+                      <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                    </span>
+                    Signing in...
+                  </>
+                ) : (
+                  'Sign in'
+                )}
               </Button>
             </form>
           </Form>
@@ -110,13 +169,47 @@ export default function LoginPage() {
             </div>
             
             <div className="flex gap-2 mt-6">
-              <Button variant="outline" className="w-full">
-                <Github className="mr-2 h-4 w-4" />
-                Github
+              <Button 
+                variant="outline" 
+                className="w-full"
+                onClick={() => handleOAuthSignIn('github')}
+                disabled={isOAuthLoading}
+              >
+                {isOAuthLoading ? (
+                  <>
+                    <svg className="animate-spin h-4 w-4 mr-2" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    Signing in...
+                  </>
+                ) : (
+                  <>
+                    <Github className="mr-2 h-4 w-4" />
+                    Github
+                  </>
+                )}
               </Button>
-              <Button variant="outline" className="w-full">
-                <Mail className="mr-2 h-4 w-4" />
-                Google
+              <Button 
+                variant="outline" 
+                className="w-full"
+                onClick={() => handleOAuthSignIn('google')}
+                disabled={isOAuthLoading}
+              >
+                {isOAuthLoading ? (
+                  <>
+                    <svg className="animate-spin h-4 w-4 mr-2" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    Signing in...
+                  </>
+                ) : (
+                  <>
+                    <FcGoogle className="mr-2 h-4 w-4" />
+                    Google
+                  </>
+                )}
               </Button>
             </div>
           </div>
@@ -132,4 +225,8 @@ export default function LoginPage() {
       </Card>
     </div>
   );
+}
+
+function setIsOAuthLoading(arg0: boolean) {
+  throw new Error('Function not implemented.');
 }

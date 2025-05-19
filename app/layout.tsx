@@ -7,6 +7,7 @@ import { Footer } from '@/components/footer';
 import { Toaster } from '@/components/ui/toaster';
 import { Analytics } from '@/components/analytics';
 import { Suspense } from 'react';
+import AuthProvider from '@/components/auth-provider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -46,15 +47,17 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <Header />
-          <main className="min-h-screen">{children}</main>
-          <Footer />
-          <Toaster />
-          <Suspense fallback={null}>
-            <Analytics />
-          </Suspense>
-        </ThemeProvider>
+        <AuthProvider>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <Header />
+            <main className="min-h-screen">{children}</main>
+            <Footer />
+            <Toaster />
+            <Suspense fallback={null}>
+              <Analytics />
+            </Suspense>
+          </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );

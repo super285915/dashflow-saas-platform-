@@ -9,6 +9,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from '@/components/ui/navigation-menu';
 import { BarChart2, Menu } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { UserButton } from '@/components/user-button';
 
 const navigationLinks = [
   { name: 'Features', href: '/features' },
@@ -51,16 +52,17 @@ export function Header() {
               <NavigationMenuList>
                 {navigationLinks.map((link) => (
                   <NavigationMenuItem key={link.name}>
-                    <Link href={link.href} legacyBehavior passHref>
-                      <NavigationMenuLink
+                    <NavigationMenuLink asChild>
+                      <Link 
+                        href={link.href}
                         className={cn(
                           'inline-flex h-9 px-4 py-2 items-center justify-center rounded-md text-sm font-medium transition-colors hover:text-primary',
                           isActive(link.href) ? 'text-primary' : 'text-foreground'
                         )}
                       >
                         {link.name}
-                      </NavigationMenuLink>
-                    </Link>
+                      </Link>
+                    </NavigationMenuLink>
                   </NavigationMenuItem>
                 ))}
                 
@@ -136,15 +138,7 @@ export function Header() {
           
           <div className="flex items-center space-x-4">
             <ModeToggle />
-            
-            <div className="hidden md:flex space-x-2">
-              <Button variant="ghost" asChild>
-                <Link href="/auth/login">Sign in</Link>
-              </Button>
-              <Button asChild>
-                <Link href="/auth/signup">Get started</Link>
-              </Button>
-            </div>
+            <UserButton />
             
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild>
